@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QCheckBox,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -65,18 +66,26 @@ class MainWindow(QMainWindow):
 
         self.distance_input = QSpinBox()
         self.distance_input.setRange(1, 100000)
-        self.distance_input.setValue(18000)
+        self.distance_input.setValue(6000)
         self.distance_input.setSuffix(" m")
+        self.distance_input.setToolTip(
+            "Smaller values are much faster. Try 4000–8000m for previews; 18000m can take several minutes."
+        )
+
+        self.fast_preview_check = QCheckBox("Fast preview defaults")
+        self.fast_preview_check.setChecked(True)
+        self.fast_preview_check.setToolTip("Uses a smaller radius and canvas for quicker OpenStreetMap downloads.")
+        self.fast_preview_check.toggled.connect(self.toggle_fast_preview)
 
         self.width_input = QDoubleSpinBox()
         self.width_input.setRange(0.1, 20.0)
         self.width_input.setDecimals(1)
-        self.width_input.setValue(12.0)
+        self.width_input.setValue(6.0)
         self.width_input.setSuffix(" in")
         self.height_input = QDoubleSpinBox()
         self.height_input.setRange(0.1, 20.0)
         self.height_input.setDecimals(1)
-        self.height_input.setValue(16.0)
+        self.height_input.setValue(8.0)
         self.height_input.setSuffix(" in")
 
         self.format_combo = QComboBox()
@@ -164,6 +173,7 @@ class MainWindow(QMainWindow):
         ]))
         layout.addWidget(self._group("Poster Settings", [
             ("Theme", self.theme_combo),
+            ("Speed", self.fast_preview_check),
             ("Distance", self.distance_input),
             ("Width", self.width_input),
             ("Height", self.height_input),
@@ -207,6 +217,8 @@ class MainWindow(QMainWindow):
             self.status_label.setText(f"Theme preview failed: {exc}")
 
     def build_request(self) -> PosterRequest:
+        if self.distance_input.value() >= 15000:
+            self.status_label.setText("Large radius selected. Street-network download may take several minutes before progress moves.")
         return PosterRequest(
             city=self.city_input.text().strip(),
             country=self.country_input.text().strip(),
@@ -295,5 +307,18 @@ class MainWindow(QMainWindow):
             self.width_input,
             self.height_input,
             self.format_combo,
+            self.fast_preview_check,
         ]:
             widget.setEnabled(not busy)
+
+    def toggle_fast_preview(self, enabled: bool) -> None:
+        if enabled:
+            self.distance_input.setValue(6000)
+            self.width_input.setValue(6.0)
+            self.height_input.setValue(8.0)
+            self.status_label.setText("Fast preview enabled: smaller radius and canvas for quicker generation.")
+        else:
+            self.distance_input.setValue(18000)
+            self.width_input.setValue(12.0)
+            self.height_input.setValue(16.0)
+            self.status_label.setText("Full quality defaults restored. Downloads may take several minutes.")

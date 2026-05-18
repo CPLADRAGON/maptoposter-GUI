@@ -8,6 +8,7 @@ from PyQt6.QtGui import QImage  # noqa: E402
 from PyQt6.QtWidgets import QApplication  # noqa: E402
 
 from maptoposter_gui.widgets import PosterPreview, ZoomableImageView  # noqa: E402
+from maptoposter_gui.main_window import MainWindow  # noqa: E402
 
 
 _APP = QApplication.instance() or QApplication(sys.argv)
@@ -43,3 +44,18 @@ def test_poster_preview_displays_saved_file_location(tmp_path):
     assert preview.copy_button.isEnabled()
     assert preview.open_button.isEnabled()
     assert preview.folder_button.isEnabled()
+
+
+def test_main_window_fast_preview_defaults_reduce_download_size():
+    window = MainWindow()
+
+    assert window.fast_preview_check.isChecked()
+    assert window.distance_input.value() == 6000
+    assert window.width_input.value() == 6.0
+    assert window.height_input.value() == 8.0
+
+    window.fast_preview_check.setChecked(False)
+
+    assert window.distance_input.value() == 18000
+    assert window.width_input.value() == 12.0
+    assert window.height_input.value() == 16.0

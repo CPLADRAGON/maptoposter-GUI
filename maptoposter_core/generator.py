@@ -63,7 +63,11 @@ class MapPosterGenerator:
             coordinates = legacy.get_coordinates(request.city, request.country)
         self._raise_if_cancelled(cancel_checker)
 
-        self._emit(progress_callback, "render", "Downloading map data and rendering poster", 5, 6)
+        if request.distance >= 15000:
+            download_message = "Downloading a large street network. This blocking OpenStreetMap request can take several minutes."
+        else:
+            download_message = "Downloading street network, water, and parks. The first OpenStreetMap request may pause here."
+        self._emit(progress_callback, "render", download_message, 5, 6)
         output_file = legacy.generate_output_filename(request.city, request.theme, output_format)
         legacy.create_poster(
             request.city,

@@ -72,6 +72,8 @@ On Windows, you can also launch the GUI from PowerShell with:
 
 The GUI exposes the same main inputs as the CLI: city, country, optional coordinates, display labels, theme, distance, dimensions, output format, and optional Google Font family. PNG outputs are previewed inline after generation. SVG and PDF outputs are saved and can be opened from the GUI. Cancellation is cooperative: it stops at the next safe checkpoint and may wait for the current OpenStreetMap or rendering operation to finish.
 
+Performance note: the first street-network step uses a single blocking OpenStreetMap/Overpass request through OSMnx, so progress may appear paused while the remote service responds. Use **Fast preview defaults** or keep distance around 4000–8000m while iterating. Larger radii such as 15000–20000m download much more map data and can take several minutes, especially for dense cities.
+
 ### Generate Poster
 
 If you're using `uv`:
