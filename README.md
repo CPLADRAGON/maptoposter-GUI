@@ -61,7 +61,13 @@ Or with pip + venv:
 ```bash
 pip install -r requirements.txt
 pip install "PyQt6>=6.7"
-python -m maptoposter_gui.app
+.venv\Scripts\python -m maptoposter_gui.app
+```
+
+On Windows, you can also launch the GUI from PowerShell with:
+
+```powershell
+.\run_gui.ps1
 ```
 
 The GUI exposes the same main inputs as the CLI: city, country, optional coordinates, display labels, theme, distance, dimensions, output format, and optional Google Font family. PNG outputs are previewed inline after generation. SVG and PDF outputs are saved and can be opened from the GUI. Cancellation is cooperative: it stops at the next safe checkpoint and may wait for the current OpenStreetMap or rendering operation to finish.
