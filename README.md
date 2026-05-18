@@ -1,6 +1,21 @@
-# City Map Poster Generator
+# City Map Poster Generator GUI
 
 Generate beautiful, minimalist map posters for any city in the world.
+
+This fork adds a dark-mode PyQt6 desktop GUI on top of the original command-line generator. The original CLI workflow is still available.
+
+## Added in this GUI Fork
+
+- **Dark-mode desktop GUI** built with PyQt6.
+- **Same core poster generator** as the CLI, using OpenStreetMap data through OSMnx.
+- **Form-based controls** for city, country, coordinates, theme, distance, poster size, output format, display labels, and custom fonts.
+- **Live theme preview** with palette swatches before generation.
+- **Fast preview defaults** for quicker iteration with smaller map radius and canvas size.
+- **Background generation worker** so the UI stays responsive while downloading and rendering.
+- **Progress and cancellation controls** with clear status messages.
+- **Zoomable and draggable PNG preview** after generation.
+- **Saved-file actions**: show full output path, open file, open folder, and copy path.
+- **Optional GUI dependency** so CLI-only users do not need PyQt6.
 
 <img src="posters/singapore_neon_cyberpunk_20260118_153328.png" width="250">
 <img src="posters/dubai_midnight_blue_20260118_140807.png" width="250">
@@ -21,6 +36,23 @@ Generate beautiful, minimalist map posters for any city in the world.
 | USA          | Seattle        | emerald         | <img src="posters/seattle_emerald_20260124_162244.png" width="250"> |
 
 ## Installation
+
+### GUI Fork Quick Start
+
+```bash
+git clone https://github.com/CPLADRAGON/maptoposter-GUI.git
+cd maptoposter-GUI
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m pip install "PyQt6>=6.7"
+.\run_gui.ps1
+```
+
+On macOS/Linux, activate the virtual environment and run:
+
+```bash
+python -m maptoposter_gui.app
+```
 
 ### With uv (Recommended)
 
@@ -47,7 +79,9 @@ pip install -r requirements.txt
 
 ### Desktop GUI
 
-The project includes an optional PyQt6 desktop interface for generating posters without typing CLI commands. The GUI uses a dark-mode-first design with elevated dark surfaces, off-white text, accessible focus states, live theme swatches, background generation, progress updates, and inline PNG preview.
+The GUI is an optional PyQt6 desktop interface for generating posters without typing CLI commands. It uses a dark-mode-first design with elevated dark surfaces, off-white text, accessible focus states, live theme swatches, background generation, progress updates, and inline PNG preview.
+
+#### Install GUI Dependencies
 
 Install GUI dependencies with uv:
 
@@ -64,15 +98,93 @@ pip install "PyQt6>=6.7"
 .venv\Scripts\python -m maptoposter_gui.app
 ```
 
+#### Launch the GUI
+
 On Windows, you can also launch the GUI from PowerShell with:
 
 ```powershell
 .\run_gui.ps1
 ```
 
-The GUI exposes the same main inputs as the CLI: city, country, optional coordinates, display labels, theme, distance, dimensions, output format, and optional Google Font family. PNG outputs are previewed inline after generation. SVG and PDF outputs are saved and can be opened from the GUI. Cancellation is cooperative: it stops at the next safe checkpoint and may wait for the current OpenStreetMap or rendering operation to finish.
+If you see `ModuleNotFoundError` for packages such as `lat_lon_parser`, you are likely using your global Python instead of the virtual environment. Use `run_gui.ps1` or `.venv\Scripts\python -m maptoposter_gui.app` from the project root.
 
-Performance note: the first street-network step uses a single blocking OpenStreetMap/Overpass request through OSMnx, so progress may appear paused while the remote service responds. Use **Fast preview defaults** or keep distance around 4000–8000m while iterating. Larger radii such as 15000–20000m download much more map data and can take several minutes, especially for dense cities.
+#### GUI User Manual
+
+1. **Enter location**
+    - Fill in **City** and **Country**.
+    - Optional: use **Latitude** and **Longitude** together to override the geocoded map center.
+
+2. **Choose poster settings**
+    - Pick a **Theme** from the dropdown.
+    - Use **Fast preview defaults** while experimenting. This sets a smaller radius and canvas for quicker generation.
+    - Adjust **Distance** to control how much of the city is included.
+    - Adjust **Width** and **Height** in inches.
+    - Select output **Format**: `png`, `svg`, or `pdf`.
+
+3. **Customize text**
+    - Optional **Display city** and **Display country** fields change the text printed on the poster.
+    - Optional **Country label** overrides the country label shown on the poster.
+    - Optional **Font family** downloads a Google Font, useful for non-Latin scripts.
+
+4. **Preview the theme**
+    - The right panel shows the selected theme name, description, and color swatches.
+    - Changing the theme updates the swatches immediately without downloading map data.
+
+5. **Generate**
+    - Click **Generate Poster**.
+    - The app downloads OpenStreetMap data, renders the poster, and saves it to `posters/`.
+    - The UI remains responsive during generation.
+
+6. **Cancel if needed**
+    - Click **Cancel** to request cancellation.
+    - Cancellation is cooperative: it stops at the next safe checkpoint and may wait for the current OpenStreetMap or rendering operation to finish.
+
+7. **Review output**
+    - PNG files appear in the preview panel.
+    - Use mouse wheel or the `+` / `-` buttons to zoom.
+    - Drag the poster to pan while zoomed.
+    - Click **Fit** to reset the preview.
+    - SVG and PDF files are saved and can be opened externally.
+
+8. **Find the saved file**
+    - The GUI shows the full saved file path after generation.
+    - Use **Open File**, **Open Folder**, or **Copy Path** from the preview panel.
+
+#### GUI Controls Reference
+
+| Control | Purpose | Tip |
+|---------|---------|-----|
+| City / Country | Location to geocode | Required unless future coordinate-only mode is added |
+| Latitude / Longitude | Manual center override | Must be provided together |
+| Theme | Poster color theme | Preview swatches update instantly |
+| Fast preview defaults | Smaller/faster working settings | Recommended while experimenting |
+| Distance | Map radius in meters | 4000-8000m is faster; 15000m+ can be slow |
+| Width / Height | Output size in inches | Max 20 inches each |
+| Format | `png`, `svg`, or `pdf` | PNG supports inline preview |
+| Display city / country | Poster label override | Useful for native/localized names |
+| Font family | Google Font family | Useful for CJK, Arabic, Thai, Khmer, etc. |
+
+#### Output Location
+
+Posters are saved to `posters/` with filenames like:
+
+```text
+{city}_{theme}_{YYYYMMDD_HHMMSS}.{format}
+```
+
+The GUI also displays the exact saved path after generation.
+
+Performance note: the first street-network step uses a single blocking OpenStreetMap/Overpass request through OSMnx, so progress may appear paused while the remote service responds. Use **Fast preview defaults** or keep distance around 4000-8000m while iterating. Larger radii such as 15000-20000m download much more map data and can take several minutes, especially for dense cities.
+
+#### Troubleshooting
+
+| Problem | What to do |
+|---------|------------|
+| `ModuleNotFoundError` when launching | Run with `.venv\Scripts\python -m maptoposter_gui.app` or `run_gui.ps1` |
+| Street network download stays at the same progress value | Wait, or reduce distance. The OSMnx street-network request is blocking and can take minutes |
+| Output preview is blank for SVG/PDF | Use **Open File**. Inline preview is currently PNG-focused |
+| Generate button is hard to see | Use the latest fork version; the action bar is pinned near the top |
+| Poster is too slow to iterate on | Enable **Fast preview defaults**, then increase distance/size for final output |
 
 ### Generate Poster
 
@@ -288,13 +400,21 @@ Create a JSON file in `themes/` directory:
 
 ```text
 map_poster/
-├── create_map_poster.py    # Main script
-├── font_management.py      # Font loading and Google Fonts integration
-├── themes/                 # Theme JSON files
-├── fonts/                  # Font files
-│   ├── Roboto-*.ttf        # Default Roboto fonts
-│   └── cache/              # Downloaded Google Fonts (auto-generated)
-├── posters/                # Generated posters
+├── create_map_poster.py       # Original CLI script
+├── font_management.py         # Font loading and Google Fonts integration
+├── maptoposter_core/          # Shared request/theme/generator interfaces used by GUI
+├── maptoposter_gui/           # PyQt6 desktop application
+│   ├── app.py                 # GUI entry point
+│   ├── main_window.py         # Main window and form workflow
+│   ├── widgets.py             # Theme swatches and zoomable poster preview
+│   ├── worker.py              # Background generation worker
+│   └── style.py               # Dark-mode style tokens and stylesheet
+├── run_gui.ps1                # Windows launcher using the local virtual environment
+├── themes/                    # Theme JSON files
+├── fonts/                     # Font files
+│   ├── Roboto-*.ttf           # Default Roboto fonts
+│   └── cache/                 # Downloaded Google Fonts (auto-generated)
+├── posters/                   # Generated posters
 └── README.md
 ```
 
@@ -313,6 +433,8 @@ Quick reference for contributors who want to extend or modify the script.
 
 ### Architecture Overview
 
+The original CLI pipeline remains intact. The GUI fork adds a thin desktop layer around shared generation interfaces.
+
 ```text
 ┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
 │   CLI Parser    │────▶│  Geocoding   │────▶│  Data Fetching  │
@@ -324,6 +446,21 @@ Quick reference for contributors who want to extend or modify the script.
                         │  (matplotlib)│     │   Rendering     │
                         └──────────────┘     │  (matplotlib)   │
                                              └─────────────────┘
+```
+
+GUI architecture:
+
+```text
+┌────────────────────┐     ┌────────────────────┐     ┌────────────────────┐
+│ PyQt6 Main Window  │────▶│ Generation Worker  │────▶│ MapPosterGenerator │
+│ forms + preview    │     │ QThread background │     │ shared core API    │
+└────────────────────┘     └────────────────────┘     └────────────────────┘
+          │                                                     │
+          ▼                                                     ▼
+┌────────────────────┐                              ┌────────────────────┐
+│ Theme Swatch Card  │                              │ Legacy Renderer    │
+│ Preview / actions  │                              │ matplotlib + OSMnx │
+└────────────────────┘                              └────────────────────┘
 ```
 
 ### Key Functions
@@ -338,6 +475,19 @@ Quick reference for contributors who want to extend or modify the script.
 | `load_theme()` | JSON theme → dict | Adding new theme properties |
 | `is_latin_script()` | Detects script for typography | Supporting new scripts |
 | `load_fonts()` | Load custom/default fonts | Changing font loading logic |
+
+### GUI Components
+
+| File | Purpose | Modify when... |
+|------|---------|----------------|
+| `maptoposter_gui/app.py` | Starts the PyQt6 application | Changing launch behavior |
+| `maptoposter_gui/main_window.py` | Main form, layout, validation, generate/cancel flow | Adding GUI controls or workflows |
+| `maptoposter_gui/widgets.py` | Theme preview, zoomable image preview, file actions | Improving preview or reusable widgets |
+| `maptoposter_gui/worker.py` | Runs generation in a background `QThread` | Changing progress/cancel behavior |
+| `maptoposter_gui/style.py` | Dark-mode semantic tokens and Qt stylesheet | Changing GUI visual design |
+| `maptoposter_core/models.py` | Shared request/result/progress dataclasses | Adding generation options |
+| `maptoposter_core/themes.py` | Theme discovery and metadata | Changing theme dropdown/preview data |
+| `maptoposter_core/generator.py` | GUI-facing generation wrapper | Changing GUI generation flow |
 
 ### Rendering Layers (z-order)
 
