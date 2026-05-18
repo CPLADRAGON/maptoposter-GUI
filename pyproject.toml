@@ -43,9 +43,18 @@ dependencies = [
     "urllib3==2.6.3",
 ]
 
+[project.optional-dependencies]
+gui = [
+    "PyQt6>=6.7",
+]
+
+[project.scripts]
+maptoposter-gui = "maptoposter_gui.app:main"
+
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["create_map_poster"]
+py-modules = ["create_map_poster", "font_management"]
+packages = ["maptoposter_core", "maptoposter_gui"]

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - Community Contributions
 
 ### Added
+- **PyQt6 desktop GUI**
+  - Added a dark-mode-first desktop interface for generating posters from form inputs
+  - Added live theme swatches, background worker generation, progress updates, cooperative cancellation, and PNG output preview
+  - Added reusable `maptoposter_core` request/result/theme/generator interfaces for GUI integration while preserving the CLI
 - **uv package manager support** ([PR #20](https://github.com/originalankur/maptoposter/pull/20))
   - Added `pyproject.toml` with project metadata and dependencies
   - Added `uv.lock` for reproducible builds
