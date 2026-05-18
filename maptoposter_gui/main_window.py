@@ -118,26 +118,36 @@ class MainWindow(QMainWindow):
         outer.addWidget(hero)
         outer.addWidget(subtitle)
 
+        action_bar = QHBoxLayout()
+        action_bar.addWidget(self.status_label, 1)
+        action_bar.addWidget(self.progress, 1)
+        action_bar.addWidget(self.cancel_button)
+        action_bar.addWidget(self.generate_button)
+        outer.addLayout(action_bar)
+
         body = QHBoxLayout()
         body.setSpacing(16)
         body.addWidget(self._build_controls(), 0)
+        body.addWidget(self._build_preview_scroll(), 1)
+        outer.addLayout(body, 1)
+        return root
 
+    def _build_preview_scroll(self) -> QScrollArea:
         preview_stack = QVBoxLayout()
         preview_stack.setSpacing(14)
         preview_stack.addWidget(self.theme_preview, 0)
         preview_stack.addWidget(self.poster_preview, 1)
+        preview_stack.addStretch(1)
+
         preview_holder = QWidget()
         preview_holder.setLayout(preview_stack)
-        body.addWidget(preview_holder, 1)
-        outer.addLayout(body, 1)
 
-        footer = QHBoxLayout()
-        footer.addWidget(self.status_label, 1)
-        footer.addWidget(self.progress, 1)
-        footer.addWidget(self.cancel_button)
-        footer.addWidget(self.generate_button)
-        outer.addLayout(footer)
-        return root
+        scroll = QScrollArea()
+        scroll.setWidget(preview_holder)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        return scroll
 
     def _build_controls(self) -> QScrollArea:
         panel = QWidget()
@@ -172,6 +182,7 @@ class MainWindow(QMainWindow):
         scroll.setWidget(panel)
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scroll.setFixedWidth(410)
         return scroll
 
